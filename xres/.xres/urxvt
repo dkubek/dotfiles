@@ -1,0 +1,59 @@
+!
+! | | | |  _ \__  ___   _| |_ 
+! | | | | |_) \ \/ \ \ / | __|
+! | |_| |  _ < >  < \ V /| |_ 
+!  \___/|_| \_/_/\_\ \_/  \__|
+
+
+! colors
+URxvt*color0:       base00
+URxvt*color1:       base01
+URxvt*color2:       base02
+URxvt*color3:       base03
+URxvt*color4:       base04
+URxvt*color5:       base05
+URxvt*color6:       base06
+URxvt*color7:       base07
+
+URxvt*color8:       base08
+URxvt*color9:       base09
+URxvt*color10:      base0A
+URxvt*color11:      base0B
+URxvt*color12:      base0C
+URxvt*color13:      base0D
+URxvt*color14:      base0E
+URxvt*color15:      base0F
+
+! fonts
+URxvt*font: xft:Hack:size=10:antialias=true
+
+! Fix issues with big line and letter spacing
+URxvt*letterSpace: -1
+URxvt*lineSpace: -1
+
+! interface
+URxvt*scrollBar: false
+URxvt*transparent: false
+URxvt*internalBorder: 30
+! URxvt*borderColor: #3B4252
+URxvt*borderLess:false
+
+! extensions
+URxvt.keysym.M-u: perl:url-select:select_next
+URxvt.url-select.underline: false
+URxvt.url-select.launcher: /usr/bin/xdg-open
+URxvt.url-select.autocopy: true
+
+! misc
+URxvt.saveLines: 9999
+URxvt.iso14755: false
+!URxvt*altSendsEscape: true
+
+! high dpi mode
+!Xft.dpi: 190
+!Xft.autohint: 0
+!Xft.lcdfilter: lcddefault
+!Xft.hintstyle: hintfull
+!Xft.hinting: 1
+!Xft.antialias: 1
+!Xft.rgba: rgb

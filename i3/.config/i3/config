@@ -1,0 +1,387 @@
+#                   __ _       
+#                  / _(_)      
+#   ___ ___  _ __ | |_ _  __ _ 
+#  / __/ _ \| '_ \|  _| |/ _` |
+# | (_| (_) | | | | | | | (_| |
+#  \___\___/|_| |_|_| |_|\__, |
+#                         __/ |
+#                        |___/ 
+#
+
+################################################################################
+#                                     MISC                                     #
+################################################################################
+
+# Set Mod key to WIN (or SUPER)
+set $mod Mod4
+set $alt Mod1
+
+# The font above is very space-efficient, that is, it looks good, sharp and
+# clear in small sizes. However, if you need a lot of unicode glyphs or
+# right-to-left text rendering, you should instead use pango for rendering and
+# chose a FreeType font, such as:
+font pango:Hack 8
+
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# Turn this option on, if you want to select active window with your mouse.
+# In my opinion leaving this on fights with the intention of i3, concretely
+# the focus on the keyboard. Turning this off is in that case a no brainer.
+focus_follows_mouse no
+
+# default windows border size
+# NOTE: Disabled becouse i3-gaps, don't really know why...
+# new_window pixel 4
+
+# return to previous workspace
+workspace_auto_back_and_forth yes
+
+# display the popup if it belongs to the fullscreen application only.
+popup_during_fullscreen smart
+
+# i3-gaps
+#smart_borders on
+for_window [class=".*"] border pixel 4
+set $default_gaps_inner 20
+set $default_gaps_outer 30
+set $bar_adjust_offset
+gaps inner $default_gaps_inner
+gaps outer $default_gaps_outer
+
+# turn off gapps for some workspaces
+#workspace $ws1 gaps inner 0
+#workspace $ws1 gaps outer 0
+
+#workspace $ws4 gaps inner 0
+#workspace $ws4 gaps outer 0
+
+#workspace $ws5 gaps inner 0
+#workspace $ws5 gaps outer 0
+
+#workspace $ws8 gaps inner 0
+#workspace $ws8 gaps outer 0
+
+################################################################################
+#                                   CONSTANTS                                  #
+################################################################################
+
+# Color configuration
+# Current colorscheme: gruvbox-medium
+# TODO: Load from xresources
+set $base00 #282828
+set $base01 #3c3836
+set $base02 #504945
+set $base03 #665c54
+set $base04 #bdae93
+set $base05 #d5c4a1
+set $base06 #ebdbb2
+set $base07 #fbf1c7
+set $base08 #fb4934
+set $base09 #fe8019
+set $base0A #fabd2f
+set $base0B #b8bb26
+set $base0C #8ec07c
+set $base0D #83a598
+set $base0E #d3869b
+set $base0F #d65d0e
+
+set $TERMINAL urxvt
+set $SCRATCHPAD /home/unemployed/bin/launch_scratch.sh
+set $LAUNCHER rofi -show run
+set $PASS_LAUNCHER rofi-pass
+
+set $EXITCMD "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
+
+################################################################################
+#                                   COLORS                                     #
+################################################################################
+
+# Basic color configuration using the Base16 variables for windows and borders.
+# Property Name         Border  BG      Text    Indicator Child Border
+client.focused          $base05 $base0D $base00 $base0D $base05
+client.focused_inactive $base01 $base01 $base05 $base03 $base01
+client.unfocused        $base01 $base00 $base05 $base01 $base01
+client.urgent           $base08 $base08 $base00 $base08 $base08
+client.placeholder      $base00 $base00 $base05 $base00 $base00
+client.background       $base07
+
+################################################################################
+#                                   KEYBINDS                                   #
+################################################################################
+
+# start a terminal
+bindsym $mod+Return exec $TERMINAL
+
+# start floating "scratchpad" terminal
+# NOTE: Don't add 'scratchpad show' to this. This is done by the launching script
+# through i3-msg.
+bindcode $mod+20 exec $SCRATCHPAD
+
+# Change volume
+bindsym XF86AudioRaiseVolume exec amixer -q set Master 5%+ unmute
+bindsym XF86AudioLowerVolume exec amixer -q set Master 5%- unmute
+bindsym XF86AudioMute exec amixer -q set Master toggle
+bindcode Shift+116 exec amixer -q sset Master 5%-
+bindcode Shift+111 exec amixer -q sset Master 5%+
+
+# Change keyboard layout
+bindsym $alt+Shift+d exec setxkbmap de qwerty
+bindsym $alt+Shift+u exec setxkbmap us
+bindsym $alt+Shift+s exec setxkbmap sk qwerty
+
+# start rofi application selector
+bindsym $mod+space exec $LAUNCHER
+bindsym $mod+Shift+space exec $PASS_LAUNCHER
+
+
+#### i3 specific keybinds
+
+# kill focused window
+bindsym $mod+Shift+q kill
+# reload the configuration file
+bindsym $mod+Shift+c reload
+# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym $mod+Shift+r restart 
+# exit i3 (logs you out of your X session)
+bindsym $mod+Shift+e exec $EXITCMD
+
+# change focus
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+
+# alternatively, you can use the cursor keys:
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# move focused window
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+# alternatively, you can use the cursor keys:
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# change focus between tiling / floating windows
+bindsym $mod+d focus mode_toggle
+# focus the parent container
+bindsym $mod+a focus parent
+
+# split in horizontal orientation
+bindsym $mod+b split h
+# split in vertical orientation
+bindsym $mod+v split v
+# enter fullscreen mode for the focused container
+bindsym $mod+f fullscreen
+# change container layout (stacked, tabbed, toggle split)
+bindsym $mod+e layout toggle
+# bindsym $mod+w layout tabbed
+bindsym $mod+w layout tabbed
+# bindsym $mod+s layout stacked
+bindsym $mod+s layout stacking
+# toggle tiling / floating
+bindsym $mod+Shift+d floating toggle
+# toggle sticky
+bindsym $alt+d sticky toggle
+
+################################################################################
+#                                  WORKSPACES                                  #
+################################################################################
+
+set $ws1 "1: "
+set $ws2 "2: "
+set $ws3 "3: "
+set $ws4 "4: "
+set $ws5 "5: "
+set $ws6 "6:  "
+set $ws7 "7: "
+set $ws8 "8: "
+set $ws9 "9: "
+set $ws10 "10: "
+
+# switch to workspace
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+bindsym $mod+6 workspace $ws6
+bindsym $mod+7 workspace $ws7
+bindsym $mod+8 workspace $ws8
+bindsym $mod+9 workspace $ws9
+bindsym $mod+0 workspace $ws10
+
+# move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6
+bindsym $mod+Shift+7 move container to workspace $ws7
+bindsym $mod+Shift+8 move container to workspace $ws8
+bindsym $mod+Shift+9 move container to workspace $ws9
+bindsym $mod+Shift+0 move container to workspace $ws10
+
+# assign specific screen to specified monitors
+# workspace $ws1 output HDMI-2
+# workspace $ws2 output HDMI-2
+# workspace $ws3 output HDMI-2
+# workspace $ws4 output HDMI-2
+# workspace $ws5 output HDMI-2
+# workspace $ws6 output HDMI-2
+# workspace $ws7 output eDP-1
+# workspace $ws8 output eDP-1
+# workspace $ws9 output eDP-1
+# workspace $ws10 output eDP-1
+
+################################################################################
+#                               WINDOW SPECIFIC                               #
+################################################################################
+
+# assing applications to speciffic workspaces
+assign [class="Firefox" instance="Navigator"] $ws1
+assign [class="Daily" instance="Mail"] $ws2
+assign [class="qbittorrent"] $ws10
+assign [class="Deluge"] $ws10
+assign [class="anki"] $ws8
+assign [class="MyPaint"] $ws5
+assign [class="krita"] $ws5
+assign [class="discord"] $ws9
+
+for_window [instance="scratchpad"] move to scratchpad
+#for_window [class="mpv|feh"] floating enable
+for_window [class="piston"] floating enable
+for_window [class="javafxsample.sample01"] floating enable
+#for_window [instance=__focused__] border pixel 9
+#for_window [title=__focused__] border pixel 9
+
+#######
+# BAR #
+#######
+
+exec_always "$HOME/.config/polybar/launch.sh"
+
+# Start i3bar to display a workspace bar (plus the system information i3status
+# finds out, if available)
+#bar {
+#        status_command i3status
+#}
+
+##############
+# I3 STARTUP #
+##############
+
+# execute programms upon i3 start
+# TODO make separate script
+
+exec --no-startup-id dunst
+
+exec $SCRATCHPAD
+exec --no-startup-id compton
+
+exec redshift
+exec firefox
+
+# TODO start using mutt and newsbeluter
+exec thunderbird
+exec Discord
+
+# TODO get wacom pen and eraser ID automatically
+# exec xsetwacom --set 19 MapToOutput HDMI-2
+# exec xsetwacom --set 20 MapToOutput HDMI-2
+
+# exec --no-startup-id "pulseaudio --start
+# exec --no-startup-id "devmon --no-gui"
+
+# Custom keybinds
+# exec xbindkeys
+
+# Start i2p
+# exec /home/unemployed/bin/i2p/runplain.sh
+
+exec deluge
+
+################################################################################
+#                                     MODES                                    #
+################################################################################
+
+# resize window (you can also use the mouse for that)
+bindsym $mod+r mode "resize"
+mode "resize" {
+        # These bindings trigger as soon as you enter the resize mode
+
+        # Pressing left will shrink the window’s width.
+        # Pressing right will grow the window’s width.
+        # Pressing up will shrink the window’s height.
+        # Pressing down will grow the window’s height.
+        bindsym h resize shrink width 10 px or 10 ppt
+        bindsym j resize grow height 10 px or 10 ppt
+        bindsym k resize shrink height 10 px or 10 ppt
+        bindsym l resize grow width 10 px or 10 ppt
+
+        # same bindings, but for the arrow keys
+        bindsym Left resize shrink width 10 px or 10 ppt
+        bindsym Down resize grow height 10 px or 10 ppt
+        bindsym Up resize shrink height 10 px or 10 ppt
+        bindsym Right resize grow width 10 px or 10 ppt
+
+        # back to normal: Enter or Escape
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+
+
+# move floating windows with keys
+bindsym $mod+m mode "move" focus floating
+mode "move" {
+    bindsym $mod+Tab focus right
+
+    bindsym Left  move left
+    bindsym Down  move down
+    bindsym Up    move up
+    bindsym Right move right
+
+    bindsym h     move left 10 px
+    bindsym j     move down 10 px
+    bindsym k     move up 10 px
+    bindsym l     move right 10 px
+
+    bindsym Shift + H     move left 50 px
+    bindsym Shift + J     move down 50 px
+    bindsym Shift + K     move up 50 px
+    bindsym Shift + L     move right 50 px
+
+    # TODO: Move floating "top left", "top right" etc. using xdotool. See:
+    # https://faq.i3wm.org/question/2795/moving-relative-to-bottomright-of-screen/index.html
+
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+### Handy Menu Mode ### {{{
+set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
+    mode "$mode_system" {
+        bindsym l exec --no-startup-id $Locker, mode "default"
+            bindsym e exec --no-startup-id i3-msg exit, mode "default"
+            bindsym s exec --no-startup-id $Locker && systemctl suspend, mode "default"
+            bindsym h exec --no-startup-id $Locker && systemctl hibernate, mode "default"
+            bindsym r exec --no-startup-id systemctl reboot, mode "default"
+            bindsym Shift+s exec --no-startup-id systemctl poweroff -i, mode "default"  
+
+            # back to normal: Enter or Escape
+            bindsym Return mode "default"
+            bindsym Escape mode "default"
+    }
+
+bindsym $mod+Pause mode "$mode_system"
+### End Handy Menu Mode ### }}}
