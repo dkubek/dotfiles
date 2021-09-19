@@ -10,4 +10,7 @@ export GTK2_RC_FILES="$XDG_CONFIG_HOME"/gtk-2.0/gtkrc
 export VIMINIT='let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc" | source $MYVIMRC'
 
 # Make ~/.toys folder executable
-export PATH="${PATH}:$HOME/.toys"
+export PATH="${PATH}:$HOME/.toys:$HOME/bin"
+
+# Add local site packages to PYTHONPATH
+export PYTHONPATH="${PYTHONPATH}:/home/unemployed/.local/lib/python3.7/site-packages"

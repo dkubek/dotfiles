@@ -17,7 +17,7 @@
     layout = "us";
     xkbOptions = "eurosign:e";
 
-    desktopManager.default = "none";
+    displayManager.defaultSession = "none+i3";
     desktopManager.xterm.enable = true;
     displayManager.startx.enable = true;
 

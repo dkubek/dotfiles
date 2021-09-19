@@ -2,19 +2,23 @@
 
 {
   users.users.unemployed.packages = with pkgs; [
-    psmisc mlocate wget unzip 
-    ncdu bmon htop
+    # Basic system utilities
+    psmisc mlocate wget unzip pciutils
+    ncdu bmon htop file wicd tree
     git
     stow
-    vim_configurable
 
-    arandr lxappearance-gtk3
+    manpages
+    (vimHugeX.override { python = python3; })
+
+    arandr lxappearance xorg.xev
 
     pass
     gnupg
 
     firefox
     deluge
+    discord
     mpv
     redshift
     calibre
@@ -24,14 +28,16 @@
     zathura
     octave
     scrot
+    texlive.combined.scheme-full
     
-    tree
     
     rxvt_unicode-with-plugins
     feh
     ranger
     rofi
     rofi-pass
+    wireguard
+    openvpn
 
     adapta-gtk-theme
     adapta-kde-theme
@@ -41,21 +47,28 @@
     bibata-cursors
 
     clang
+    gcc
+    ctags
 
     # Haskell platform
     stack
     cabal2nix
 
+    # I'm sorry
+    nodejs
+
     (
     let
       my-python-packages = python-packages: with python-packages; [
-        requests
+        setuptools
         pip
+        virtualenv
+
+        pynvim
+        flake8 pylint yapf
         jedi
-        matplotlib numpy networkx pandas
-        notebook
         ]; 
-      python-with-my-packages = python3.withPackages my-python-packages;
+      python-with-my-packages = python37.withPackages my-python-packages;
     in
       python-with-my-packages
     )
@@ -79,4 +92,9 @@
   programs.gnupg.agent.enable = true;
 
   virtualisation.docker.enable = true;
+
+  documentation.dev.enable = true;
+
+  services.printing.enable = true;
+  services.printing.drivers = [ pkgs.brlaser ];
 }

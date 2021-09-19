@@ -43,8 +43,8 @@ popup_during_fullscreen smart
 # i3-gaps
 #smart_borders on
 for_window [class=".*"] border pixel 4
-set $default_gaps_inner 20
-set $default_gaps_outer 30
+set $default_gaps_inner 10
+set $default_gaps_outer 20
 set $bar_adjust_offset
 gaps inner $default_gaps_inner
 gaps outer $default_gaps_outer
@@ -125,6 +125,10 @@ bindsym XF86AudioMute exec amixer -q set Master toggle
 bindcode Shift+116 exec amixer -q sset Master 5%-
 bindcode Shift+111 exec amixer -q sset Master 5%+
 
+# Change brightness
+bindsym XF86MonBrightnessDown exec light -U 10
+bindsym XF86MonBrightnessUp exec light -A 10
+
 # Change keyboard layout
 bindsym $alt+Shift+d exec setxkbmap de qwerty
 bindsym $alt+Shift+u exec setxkbmap us
@@ -134,6 +138,8 @@ bindsym $alt+Shift+s exec setxkbmap sk qwerty
 bindsym $mod+space exec $LAUNCHER
 bindsym $mod+Shift+space exec $PASS_LAUNCHER
 
+# take screenshot
+bindsym --release Print exec scrot -s
 
 #### i3 specific keybinds
 
@@ -260,6 +266,7 @@ assign [class="discord"] $ws9
 for_window [instance="scratchpad"] move to scratchpad
 #for_window [class="mpv|feh"] floating enable
 for_window [class="piston"] floating enable
+for_window [class="matplotlib"] floating enable
 for_window [class="javafxsample.sample01"] floating enable
 #for_window [instance=__focused__] border pixel 9
 #for_window [title=__focused__] border pixel 9
@@ -308,7 +315,7 @@ exec Discord
 # Start i2p
 # exec /home/unemployed/bin/i2p/runplain.sh
 
-exec deluge
+#exec deluge
 
 ################################################################################
 #                                     MODES                                    #
