@@ -16,11 +16,8 @@
 set $mod Mod4
 set $alt Mod1
 
-# The font above is very space-efficient, that is, it looks good, sharp and
-# clear in small sizes. However, if you need a lot of unicode glyphs or
-# right-to-left text rendering, you should instead use pango for rendering and
-# chose a FreeType font, such as:
-font pango:Hack 8
+# Set default font
+font pango:Hack Nerd Font 8
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -30,37 +27,11 @@ floating_modifier $mod
 # the focus on the keyboard. Turning this off is in that case a no brainer.
 focus_follows_mouse no
 
-# default windows border size
-# NOTE: Disabled becouse i3-gaps, don't really know why...
-# new_window pixel 4
-
 # return to previous workspace
 workspace_auto_back_and_forth yes
 
 # display the popup if it belongs to the fullscreen application only.
 popup_during_fullscreen smart
-
-# i3-gaps
-#smart_borders on
-for_window [class=".*"] border pixel 4
-set $default_gaps_inner 10
-set $default_gaps_outer 20
-set $bar_adjust_offset
-gaps inner $default_gaps_inner
-gaps outer $default_gaps_outer
-
-# turn off gapps for some workspaces
-#workspace $ws1 gaps inner 0
-#workspace $ws1 gaps outer 0
-
-#workspace $ws4 gaps inner 0
-#workspace $ws4 gaps outer 0
-
-#workspace $ws5 gaps inner 0
-#workspace $ws5 gaps outer 0
-
-#workspace $ws8 gaps inner 0
-#workspace $ws8 gaps outer 0
 
 ################################################################################
 #                                   CONSTANTS                                  #
@@ -68,26 +39,25 @@ gaps outer $default_gaps_outer
 
 # Color configuration
 # Current colorscheme: gruvbox-medium
-# TODO: Load from xresources
-set $base00 #282828
-set $base01 #3c3836
-set $base02 #504945
-set $base03 #665c54
-set $base04 #bdae93
-set $base05 #d5c4a1
-set $base06 #ebdbb2
-set $base07 #fbf1c7
-set $base08 #fb4934
-set $base09 #fe8019
-set $base0A #fabd2f
-set $base0B #b8bb26
-set $base0C #8ec07c
-set $base0D #83a598
-set $base0E #d3869b
-set $base0F #d65d0e
+set $base00 #2d2d2d
+set $base01 #393939
+set $base02 #515151
+set $base03 #747369
+set $base04 #a09f93
+set $base05 #d3d0c8
+set $base06 #e8e6df
+set $base07 #f2f0ec
+set $base08 #f2777a
+set $base09 #f99157
+set $base0A #ffcc66
+set $base0B #99cc99
+set $base0C #66cccc
+set $base0D #6699cc
+set $base0E #cc99cc
+set $base0F #d27b53
 
 set $TERMINAL urxvt
-set $SCRATCHPAD /home/unemployed/bin/launch_scratch.sh
+set $SCRATCHPAD "$HOME/.config/i3/launch_scratch.sh"
 set $LAUNCHER rofi -show run
 set $PASS_LAUNCHER rofi-pass
 
@@ -249,13 +219,39 @@ bindsym $mod+Shift+0 move container to workspace $ws10
 # workspace $ws9 output eDP-1
 # workspace $ws10 output eDP-1
 
+# i3-gaps
+smart_borders on
+for_window [class=".*"] border pixel 3
+
+set $default_gaps_inner 10
+set $default_gaps_outer 5
+set $bar_adjust_offset 40
+
+gaps inner $default_gaps_inner
+gaps outer $default_gaps_outer
+gaps top $bar_adjust_offset
+
+
+# turn off gapps for some workspaces
+#workspace $ws1 gaps inner 0
+#workspace $ws1 gaps outer 0
+#
+#workspace $ws4 gaps inner 0
+#workspace $ws4 gaps outer 0
+#
+#workspace $ws5 gaps inner 0
+#workspace $ws5 gaps outer 0
+#
+#workspace $ws8 gaps inner 0
+#workspace $ws8 gaps outer 0
+
 ################################################################################
 #                               WINDOW SPECIFIC                               #
 ################################################################################
 
 # assing applications to speciffic workspaces
 assign [class="Firefox" instance="Navigator"] $ws1
-assign [class="Daily" instance="Mail"] $ws2
+assign [class="Thunderbird"] $ws2
 assign [class="qbittorrent"] $ws10
 assign [class="Deluge"] $ws10
 assign [class="anki"] $ws8
@@ -264,12 +260,6 @@ assign [class="krita"] $ws5
 assign [class="discord"] $ws9
 
 for_window [instance="scratchpad"] move to scratchpad
-#for_window [class="mpv|feh"] floating enable
-for_window [class="piston"] floating enable
-for_window [class="matplotlib"] floating enable
-for_window [class="javafxsample.sample01"] floating enable
-#for_window [instance=__focused__] border pixel 9
-#for_window [title=__focused__] border pixel 9
 
 #######
 # BAR #

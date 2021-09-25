@@ -1,4 +1,4 @@
 ! NEEDS FULL PATH
-#include "/home/unemployed/.xres/colors/gruvbox-dark-medium"
-#include "/home/unemployed/.xres/urxvt"
-#include "/home/unemployed/.xres/rofi"
+#include ".xres/colors/eighties"
+#include ".xres/urxvt"
+#include ".xres/rofi"

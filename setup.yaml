@@ -1,0 +1,120 @@
+---
+- name: "Basic setup using ansible"
+  hosts: localhost
+  connection: local
+  tasks:
+
+    - name: "Install desktop"
+      become: true
+      dnf:
+        name:
+          - polybar
+          - rofi
+          - i3
+        state: present
+
+    - name: "Install snap"
+      become: true
+      dnf:
+        name: snapd
+        state: present
+
+    - name: "Link snap directory"
+      become: true
+      file:
+        src: "/var/lib/snapd/snap"
+        dest: "/snap"
+        state: link
+
+    - name: "Start snapd service"
+      become: true
+      service: "name=snapd state=started enabled=yes"
+
+    - name: "Install spotify"
+      become: true
+      community.general.snap:
+        name: spotify
+
+    - name: "Install pycharm"
+      become: true
+      community.general.snap:
+        name:
+          - pycharm-community
+          - pycharm-professional
+        classic: true
+
+    - name: "Install yamllint"
+      become: true
+      dnf:
+        name: yamllint
+        state: present
+
+          #- name: "Install nvidia"
+          #  become: true
+          #  dnf:
+          #    name:
+          #      - nvautoinstall
+          #      - xorg-x11-drv-nvidia
+          #      - akmod-nvidia
+
+    - name: "Install basics"
+      become: true
+      dnf:
+        name:
+          - direnv
+          - htop
+          - neovim
+          - feh
+          - arandr
+          - ncdu
+          - pass
+          - fish
+          - sloccount
+          - ranger
+          - rclone
+          - youtube-dl
+          - maim
+          - calibre
+        state: present
+
+    - name: "Install languages"
+      become: true
+      dnf:
+        name:
+          - python3-devel
+        state: present
+
+    - name: "Install fonts"
+      block:
+        - name: "Create fonts directory"
+          file:
+            path: ~/.local/share/fonts
+            state: directory
+
+        - name: "Create fonts configuration directory"
+          file:
+            path: ~/.config/fontconfig/conf.d
+            state: directory
+
+        - name: "Download NerdFont Hack "
+          get_url:
+            url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Hack.zip"
+            dest: /tmp/hack_font.zip
+
+        - name: "Unpack Hack zip"
+          unarchive:
+            remote_src: true
+            src: "/tmp/hack_font.zip"
+            dest: "~/.local/share/fonts"
+
+        - name: "Remove font zip"
+          file:
+            path: /tmp/hack_font.zip
+            state: absent
+
+        - name: "Update font cache"
+          command: "fc-cache -f -v"
+
+      tags:
+        - fonts
+        - configuration

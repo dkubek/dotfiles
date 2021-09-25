@@ -25,35 +25,40 @@ URxvt*color14:      base0E
 URxvt*color15:      base0F
 
 ! fonts
-URxvt*font: xft:Hack:size=10:antialias=true
+URxvt*font: xft:Hack Nerd Font:size=10
 
 ! Fix issues with big line and letter spacing
 URxvt*letterSpace: -1
-URxvt*lineSpace: -1
+URxvt*lineSpace: 0
 
 ! interface
 URxvt*scrollBar: false
 URxvt*transparent: false
-URxvt*internalBorder: 30
-! URxvt*borderColor: #3B4252
+
+! Border
 URxvt*borderLess:false
+URxvt*internalBorder: 40
 
 ! extensions
-URxvt.keysym.M-u: perl:url-select:select_next
-URxvt.url-select.underline: false
 URxvt.url-select.launcher: /usr/bin/xdg-open
 URxvt.url-select.autocopy: true
 
+URxvt.perl-ext-common: default,clipboard,url-select,keyboard-select
+URxvt.copyCommand: xclip -i -selection clipboard
+URxvt.pasteCommand: xclip -o -selection clipboard
+URxvt.keysym.M-c: perl:clipboard:copy
+URxvt.keysym.M-v: perl:clipboard:paste
+URxvt.keysym.M-C-v: perl:clipboard:paste_escaped
+URxvt.keysym.M-Escape: perl:keyboard-select:activate
+URxvt.keysym.M-s: perl:keyboard-select:search
+URxvt.keysym.M-u: perl:url-select:select_next
+URxvt.urlLauncher: firefox
+URxvt.underlineURLs: true
+URxvt.urlButton: 1
+
 ! misc
 URxvt.saveLines: 9999
-URxvt.iso14755: false
+!URxvt.iso14755: false
 !URxvt*altSendsEscape: true
 
 ! high dpi mode
-!Xft.dpi: 190
-!Xft.autohint: 0
-!Xft.lcdfilter: lcddefault
-!Xft.hintstyle: hintfull
-!Xft.hinting: 1
-!Xft.antialias: 1
-!Xft.rgba: rgb

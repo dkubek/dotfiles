@@ -1,6 +1,3 @@
-# Set a sensible default editor
-export EDITOR=vim
-
 # XDG specification exports
 export XDG_CACHE_HOME="/tmp/.cache"
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -14,3 +11,9 @@ export PATH="${PATH}:$HOME/.toys:$HOME/bin"
 
 # Add local site packages to PYTHONPATH
 export PYTHONPATH="${PYTHONPATH}:/home/unemployed/.local/lib/python3.7/site-packages"
+
+# added by Nix installer
+if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]
+then 
+    source "$HOME/.nix-profile/etc/profile.d/nix.sh"
+fi 
