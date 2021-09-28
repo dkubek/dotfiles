@@ -6,38 +6,40 @@
 #
 
 
-# Base16 Gruvbox dark, medium
-# Author: Dawid Kurek (dawikur@gmail.com), morhetz (https://github.com/morhetz/gruvbox)
+# Start flavours
+# Base16 Eighties
+# Author: Chris Kempson (http://chriskempson.com)
 
-set default-bg                  "#282828"
-set default-fg                  "#3c3836"
+set default-bg                  "#2d2d2d"
+set default-fg                  "#393939"
 
-set statusbar-fg                "#bdae93"
-set statusbar-bg                "#504945"
+set statusbar-fg                "#a09f93"
+set statusbar-bg                "#515151"
 
-set inputbar-bg                 "#282828"
-set inputbar-fg                 "#fbf1c7"
+set inputbar-bg                 "#2d2d2d"
+set inputbar-fg                 "#f2f0ec"
 
-set notification-bg             "#282828"
-set notification-fg             "#fbf1c7"
+set notification-bg             "#2d2d2d"
+set notification-fg             "#f2f0ec"
 
-set notification-error-bg       "#282828"
-set notification-error-fg       "#fb4934"
+set notification-error-bg       "#2d2d2d"
+set notification-error-fg       "#f2777a"
 
-set notification-warning-bg     "#282828"
-set notification-warning-fg     "#fb4934"
+set notification-warning-bg     "#2d2d2d"
+set notification-warning-fg     "#f2777a"
 
-set highlight-color             "#fabd2f"
-set highlight-active-color      "#83a598"
+set highlight-color             "#ffcc66"
+set highlight-active-color      "#6699cc"
 
-set completion-bg               "#3c3836"
-set completion-fg               "#83a598"
+set completion-bg               "#393939"
+set completion-fg               "#6699cc"
 
-set completion-highlight-fg     "#fbf1c7"
-set completion-highlight-bg     "#83a598"
+set completion-highlight-fg     "#f2f0ec"
+set completion-highlight-bg     "#6699cc"
 
-set recolor-lightcolor          "#282828"
-set recolor-darkcolor           "#ebdbb2"
+set recolor-lightcolor          "#2d2d2d"
+set recolor-darkcolor           "#e8e6df"
+# End flavours
 
 set recolor                     "true"
 set recolor-keephue             "true"

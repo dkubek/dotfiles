@@ -1,4 +1,2 @@
-! NEEDS FULL PATH
-#include ".xres/colors/eighties"
+#include ".xres/colors"
 #include ".xres/urxvt"
-#include ".xres/rofi"

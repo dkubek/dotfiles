@@ -131,9 +131,11 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-eval "$(starship init zsh)"
-
-if [ -e /home/dkubek/.nix-profile/etc/profile.d/nix.sh ]; then . /home/dkubek/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+# Source nix
+if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]
+then 
+    . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+fi # added by Nix installer
 
 HISTFILE=~/.histfile
 HISTSIZE=1000
@@ -141,11 +143,14 @@ SAVEHIST=10000
 setopt autocd notify
 unsetopt beep
 bindkey -e
+
 # End of lines configured by zsh-newuser-install
 
-source $HOME/.profile
-
 # Start X server after login
-if [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]]; then
+if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
   exec startx
 fi
+
+# Initialize starship
+eval "$(starship init zsh)"
+

@@ -1,0 +1,76 @@
+[[item]]
+file = "~/.config/alacritty/alacritty.yml"
+template = "alacritty"
+subtemplate = "default-256"
+#hook = "swaymsg reload"
+
+[[item]]
+file = "~/.config/i3/config"
+template = "i3"
+subtemplate = "colors"
+
+[[item]]
+file = "~/.config/i3/config"
+template = "i3"
+subtemplate = "colors"
+hook = "i3-msg reload"
+
+[[item]]
+file = "~/.xres/colors"
+template = "xresources"
+subtemplate = "default-256"
+rewrite = true
+hook = "xrdb -load ~/.Xresources"
+
+[[item]]
+file = "~/.config/rofi/colors.rasi"
+template = "rofi"
+subtemplate = "colors"
+start= "/* Start flavours */"
+end = "/* End flavours */"
+
+[[item]]
+file = "~/.config/polybar/config"
+template = "polybar"
+subtemplate = "default"
+start= "; Start flavours"
+end = "; End flavours"
+
+[[item]]
+file = "~/.config/zathura/zathurarc"
+template = "zathura"
+subtemplate = "recolor"
+
+[[item]]
+file = "~/.config/dunst/dunstrc"
+template = "dunst"
+subtemplate = "default"
+hook = "killall dunst"
+
+[[item]]
+file = "~/.config/nvim/colors.vim"
+template = "vim"
+subtemplate = "default"
+rewrite = true
+# Hack: https://github.com/dj95/dwm-theme-switcher/blob/master/neovim-reload.py
+hook = 'bash -c "python ~/.config/nvim/neovim-reload.py"'
+
+[[item]]
+file = "~/.config/nvim/colors-airline.vim"
+template = "vim-airline-themes"
+subtemplate = "default"
+rewrite = true
+# Hack: https://github.com/dj95/dwm-theme-switcher/blob/master/neovim-reload.py
+hook = 'bash -c "python ~/.config/nvim/neovim-reload.py"'
+
+[[item]]
+file = "~/.themes/FlatColor/colors2"
+template = "gtk-flatcolor"
+subtemplate = "gtk-2"
+rewrite = true
+
+[[item]]
+file = "~/.themes/FlatColor/colors3"
+template = "gtk-flatcolor"
+subtemplate = "gtk-3"
+rewrite = true

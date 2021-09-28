@@ -5,7 +5,8 @@
 
 if [[ $(ps aux | grep "scratchpad" | wc -l) -lt 2 ]]
 then
-    urxvt -name scratchpad -cd $HOME &
+    # urxvt -name scratchpad -cd $HOME &
+    alacritty --title scratchpad --class scratchpad &
 
     # NOTE: Some time is needed for i3 to recognize the urxvt window
     # Might need more time on slower mashines. Adjust accordingly.
