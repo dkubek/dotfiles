@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-xsettingsd &
+# This is probably a good thing but breaks some things
+# xsettingsd &
 
 . "$HOME/.profile"
 

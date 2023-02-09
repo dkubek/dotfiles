@@ -45,7 +45,10 @@
     # Set the maximum width for the progress bar
     # progress_bar_max_width = 300
     
-    geometry = "512x48-40+50"
+    #geometry = "512x48-40+50"
+    width = 512
+    height = 100
+    offset = 30x60
 
     # Show how many messages are currently hidden (because of
     # notification_limit).

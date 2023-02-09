@@ -32,6 +32,7 @@ if !filereadable(vimplug_exists)
   autocmd VimEnter * PlugInstall
 endif
 
+
 " Required:
 call plug#begin(expand('~/.config/nvim/plugged'))
 
@@ -41,11 +42,15 @@ call plug#begin(expand('~/.config/nvim/plugged'))
 "*****************************************************************************
 Plug 'scrooloose/nerdtree'
 Plug 'jistr/vim-nerdtree-tabs'
-Plug 'scrooloose/nerdcommenter'
+"Plug 'scrooloose/nerdcommenter'
 Plug 'liuchengxu/vista.vim'
 
+" LSPs
+" TODO: Figure out how to clean up this mess and maybe use just one LSP
 Plug 'dense-analysis/ale'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"Plug 'ncm2/ncm2'  " optional
+"Plug 'neovim/nvim-lspconfig'
 
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb' " required by fugitive to :Gbrowse
@@ -57,8 +62,8 @@ Plug 'majutsushi/tagbar'
 Plug 'Yggdroot/indentLine'
 Plug 'avelino/vim-bootstrap-updater'
 
+let g:polyglot_disabled = ['python', 'latex', 'cpp']
 Plug 'sheerun/vim-polyglot'
-let g:polyglot_disabled = ['python', 'latex']
 
 Plug 'lervag/vimtex'
 
@@ -92,8 +97,11 @@ Plug 'vim-airline/vim-airline-themes'
 "*****************************************************************************
 
 " c
-Plug 'vim-scripts/c.vim', {'for': ['c', 'cpp', 'ino']}
+" Plug 'vim-scripts/c.vim', {'for': ['c', 'cpp', 'ino']}
+Plug 'WolfgangMehner/c-support', {'for': ['c', 'cpp', 'ino']}
 Plug 'ludwig/split-manpage.vim'
+" cpp
+Plug 'jackguo380/vim-lsp-cxx-highlight'
 
 
 " haskell
@@ -117,6 +125,9 @@ Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
 Plug 'raimon49/requirements.txt.vim', {'for': 'requirements'}
 Plug 'Vimjas/vim-python-pep8-indent'
+
+" Julia
+Plug 'JuliaEditorSupport/julia-vim'
 
 
 " rust
@@ -215,7 +226,7 @@ else
   let g:CSApprox_loaded = 1
 
   " IndentLine
-  let g:indentLine_enabled = 1
+  let g:indentLine_enabled = 0
   let g:indentLine_concealcursor = 0
   let g:indentLine_char = '┆'
   let g:indentLine_faster = 1
@@ -454,7 +465,7 @@ let g:ale_linters = {
 let g:ale_fixers = {
 \   'ruby': ['rubocop'],
 \   'cpp': ['clang-format'],
-\   'haskell': ['brittany'],
+\   'haskell': ['stylish-haskell'],
 \   'sh': ['shfmt'],
 \   'python': ['black', 'isort'],
 \   '*': ['remove_trailing_lines', 'trim_whitespace'],
@@ -465,16 +476,16 @@ let g:ale_python_pylint_change_directory=0
 let g:ale_python_pylint_options='-d c-extension-no-member'
 
 let g:ale_c_clangtidy_checks = []
-let g:ale_c_clangtidy_executable = 'clang-tidy'
-let g:ale_c_parse_compile_commands=1
-let g:ale_c_clangtidy_extra_options = 'c++17'
-let g:ale_c_clangtidy_options = '-std=c++17'
+"let g:ale_c_clangtidy_executable = 'clang-tidy'
+"let g:ale_c_parse_compile_commands=1
+"let g:ale_c_clangtidy_extra_options = 'c++17'
+"let g:ale_c_clangtidy_options = '-std=c++17'
 let g:ale_cpp_clangtidy_extra_options = 'c++17'
 let g:ale_cpp_clangtidy_options = '-std=c++17'
 let g:ale_cpp_clang_options = '--std=c++17'
 let g:ale_c_clangformat_options = '--style="{BasedOnStyle: mozilla, IndentWidth: 4}"'
 let g:ale_set_balloons=1
-
+let g:clang_format#auto_format_on_insert_leave = 1
 
 " Tagbar
 nmap <silent> <F4> :TagbarToggle<CR>
@@ -540,6 +551,9 @@ autocmd FileType c setlocal tabstop=8 shiftwidth=8 noexpandtab
 autocmd FileType cpp setlocal tabstop=4 shiftwidth=4 expandtab
 autocmd FileType hpp setlocal tabstop=4 shiftwidth=4 expandtab
 
+" c-support
+let g:C_UseTool_cmake = 'yes'
+
 
 " haskell
 let g:haskell_conceal_wide = 0
@@ -547,6 +561,9 @@ let g:haskell_multiline_strings = 1
 let g:necoghc_enable_detailed_browse = 1
 autocmd Filetype haskell setlocal omnifunc=necoghc#omnifunc
 autocmd FileType haskell setlocal tabstop=2 shiftwidth=2 expandtab
+
+" julia
+"require'lspconfig'.julials.setup{}
 
 
 " lisp
@@ -595,6 +612,7 @@ au FileType rust nmap <leader>gd <Plug>(rust-doc)
 
 
 " LaTeX
+"let g:tex_flavor='tectonic'
 let g:tex_flavor='latex'
 let g:vimtex_view_method='zathura'
 let g:vimtex_quickfix_mode=0
@@ -621,6 +639,16 @@ let g:vimtex_compiler_latexmk = {
 " Coc settings
 "*******************************************************************************
 
+
+" Always show the signcolumn, otherwise it would shift the text each time
+" diagnostics appear/become resolved.
+if has("nvim-0.5.0") || has("patch-8.1.1564")
+  " Recently vim can merge signcolumn and number column into one
+  set signcolumn=number
+else
+  set signcolumn=yes
+endif
+
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
@@ -634,6 +662,7 @@ function! s:check_back_space() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
+
 
 " Use <c-space> to trigger completion.
 if has('nvim')

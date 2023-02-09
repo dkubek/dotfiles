@@ -1,2 +1,4 @@
 #include ".xres/colors"
 #include ".xres/urxvt"
+
+Xcursor.size: 32

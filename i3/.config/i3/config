@@ -40,7 +40,7 @@ popup_during_fullscreen smart
 set $TERMINAL alacritty
 set $SCRATCHPAD "$HOME/.config/i3/launch_scratch.sh"
 set $LAUNCHER rofi -show run
-set $PASS_LAUNCHER rofi-pass
+set $PASS_LAUNCHER "$HOME/bin/rofi-pass"
 
 set $EXITCMD "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
@@ -95,15 +95,30 @@ bindsym $mod+Return exec $TERMINAL
 bindcode $mod+20 exec $SCRATCHPAD
 
 # Change volume
-bindsym XF86AudioRaiseVolume exec amixer -q sset Master 5%+ unmute
-bindsym XF86AudioLowerVolume exec amixer -q sset Master 5%- unmute
-bindsym XF86AudioMute exec amixer -q set Master toggle
-bindcode Shift+116 exec amixer -q sset Master 5%- unmute
-bindcode Shift+111 exec amixer -q sset Master 5%+ unmute
+# Use alsa
+# bindsym XF86AudioRaiseVolume exec amixer -q sset Master 5%+ unmute
+# bindsym XF86AudioLowerVolume exec amixer -q sset Master 5%- unmute
+# bindsym XF86AudioMute exec amixer -q set Master toggle
+# bindcode Shift+116 exec amixer -q sset Master 5%- unmute
+# bindcode Shift+111 exec amixer -q sset Master 5%+ unmute
+
+# Use pulseaudio thorugh pamixer 
+# https://github.com/cdemoulins/pamixer
+bindsym XF86AudioRaiseVolume exec pamixer -i 5
+bindsym XF86AudioLowerVolume exec pamixer -d 5
+bindsym XF86AudioMute exec pamixer -t
+bindcode Shift+111 exec pamixer -i 5
+bindcode Shift+116 exec pamixer -d 5
 
 # Change brightness
-bindsym XF86MonBrightnessDown exec light -U 10
-bindsym XF86MonBrightnessUp exec light -A 10
+bindsym XF86MonBrightnessDown exec "light -U 10"
+bindsym XF86MonBrightnessUp exec "light -A 10"
+
+# Change external monitor brightness
+# NOTE: User needs to be in the i2c group
+# See: https://www.ddcutil.com/i2c_permissions/
+bindsym Shift+XF86MonBrightnessDown exec "ddcutil --display 1 setvcp 10 - 10"
+bindsym Shift+XF86MonBrightnessUp exec "ddcutil --display 1 setvcp 10 + 10"
 
 # Change keyboard layout
 bindsym $alt+Shift+d exec setxkbmap de qwerty
@@ -113,6 +128,9 @@ bindsym $alt+Shift+s exec setxkbmap sk qwerty
 # start rofi application selector
 bindsym $mod+space exec $LAUNCHER
 bindsym $mod+Shift+space exec $PASS_LAUNCHER
+
+# Lock the screen
+bindsym $mod+Shift+x exec "betterlockscreen --lock blur 0.8"
 
 # take screenshot
 bindsym --release Print exec maim -s ~/$(date +%s).png
@@ -216,16 +234,16 @@ bindsym $mod+Shift+9 move container to workspace $ws9
 bindsym $mod+Shift+0 move container to workspace $ws10
 
 # assign specific screen to specified monitors
-# workspace $ws1 output HDMI-2
-# workspace $ws2 output HDMI-2
-# workspace $ws3 output HDMI-2
-# workspace $ws4 output HDMI-2
-# workspace $ws5 output HDMI-2
-# workspace $ws6 output HDMI-2
-# workspace $ws7 output eDP-1
-# workspace $ws8 output eDP-1
-# workspace $ws9 output eDP-1
-# workspace $ws10 output eDP-1
+workspace $ws1 output primary
+workspace $ws2 output primary
+workspace $ws3 output primary
+workspace $ws4 output primary
+workspace $ws5 output eDP primary
+workspace $ws6 output eDP primary
+workspace $ws7 output eDP primary
+workspace $ws8 output eDP primary
+workspace $ws9 output eDP primary
+workspace $ws10 output eDP primary
 
 # i3-gaps
 smart_borders on
@@ -246,7 +264,7 @@ gaps top $bar_adjust_offset
 
 # assing applications to speciffic workspaces
 assign [class="Firefox" instance="Navigator"] $ws1
-assign [class="Thunderbird"] $ws2
+assign [class="thunderbird"] $ws2
 assign [class="anki"] $ws8
 assign [class="MyPaint"] $ws5
 assign [class="krita"] $ws5
@@ -279,7 +297,7 @@ exec spotify
 exec discord
 
 
-################################################################################
+###############################################################################
 #                                     MODES                                    #
 ################################################################################
 
