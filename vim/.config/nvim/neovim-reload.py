@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-#
-# dwm-theme-switcher
-#
-# (c) 2017 Daniel Jankowski
-
-
-import os
-
+from pathlib import Path
 from neovim import attach
 
 
@@ -14,24 +7,28 @@ def get_all_instances():
     instances = []
 
     # get the content of /tmp
-    directory_content = os.listdir('/tmp')
-    for directory in directory_content:
-        # check if it contains directories starting with nvim
-        if directory.startswith('nvim'):
-            # check if the nvim directories contains a socket
-            dc = os.listdir('/tmp/' + directory)
-            if '0' in dc:
-                instances.append('/tmp/' + directory + '/0')
+    tmpdir = Path('/tmp')
+    for file in tmpdir.iterdir():
+        # check if it contains any nvim sockets
+        if file.is_socket() and file.name.startswith('nvim'):
+            instances.append(file)
+
     return instances
 
 
 def reload(instance):
+    # Reload colorschemes
+
     # connect over the socker
     nvim = attach('socket', path=instance)
 
-    # execute the reload command
-    nvim.command('source ~/.config/nvim/colors.vim')
-    nvim.command('source ~/.config/nvim/colors-airline.vim')
+    # Use this if you have your colorschemes in vimscript
+    # nvim.command('source ~/.config/nvim/colors/flavours.vim')
+    # nvim.command('source ~/.config/nvim/colors-airline.vim')
+
+    # Reload the whole nvim configuration (use if configuration is written in
+    #                                      lua)
+    nvim.command('luafile $MYVIMRC')
 
 
 def main():
@@ -41,7 +38,6 @@ def main():
     # connect to instances and reload them
     for instance in instances:
         reload(instance)
-    pass
 
 
 if __name__ == '__main__':
