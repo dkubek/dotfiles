@@ -48,7 +48,7 @@ subtemplate = "default"
 hook = "killall dunst"
 
 [[item]]
-file = "~/.config/nvim/colors.vim"
+file = "~/.config/nvim/colors/flavours.vim"
 template = "vim"
 subtemplate = "default"
 rewrite = true
@@ -56,8 +56,8 @@ rewrite = true
 hook = 'bash -c "python ~/.config/nvim/neovim-reload.py"'
 
 [[item]]
-file = "~/.config/nvim/colors-airline.vim"
-template = "vim-airline-themes"
+file = "~/.config/nvim/lua/lualine/themes/flavours.lua"
+template = "vim-lualine-themes"
 subtemplate = "default"
 rewrite = true
 # Hack: https://github.com/dj95/dwm-theme-switcher/blob/master/neovim-reload.py

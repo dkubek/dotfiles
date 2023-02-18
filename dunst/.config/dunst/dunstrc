@@ -284,6 +284,7 @@
     mouse_right_click = close_all
 
 # Start flavours
+[global]
 frame_color = "#d3d0c8"
 separator_color = "#d3d0c8"
 

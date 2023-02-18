@@ -23,6 +23,9 @@ require('packer').startup(function(use)
 
       -- Additional lua configuration, makes nvim stuff amazing
       'folke/neodev.nvim',
+
+      'jose-elias-alvarez/null-ls.nvim',
+      "jay-babu/mason-null-ls.nvim"
     },
   }
 
@@ -60,8 +63,8 @@ require('packer').startup(function(use)
   -- LaTex
   use {
     'lervag/vimtex',
-    config = function ()
-      vim.g.tex_flavor='latex'
+    config = function()
+      vim.g.tex_flavor = 'latex'
       vim.g.vimtex_view_general_viewer = 'zathura'
       vim.g.vimtex_compiler_latexmk = {
         build_dir = 'out',
@@ -78,6 +81,13 @@ require('packer').startup(function(use)
     'quarto-dev/quarto-nvim',
     requires = { 'jmbuhr/otter.nvim', 'neovim/nvim-lspconfig' },
   }
+
+  -- Markdown
+  use {
+    "iamcco/markdown-preview.nvim",
+    run = function() vim.fn["mkdp#util#install"]() end,
+  }
+
 
   -- Haskell
   use 'neovimhaskell/haskell-vim'
@@ -169,6 +179,48 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
+-- Search mappings: These will make it so that going to the next one in a
+-- search will center on the line it's found in.
+vim.keymap.set('n', 'n', 'nzzzv', { silent = true })
+vim.keymap.set('n', 'N', 'Nzzzv', { silent = true })
+
+
+-- Split
+vim.keymap.set('n', '<Leader>h', ':<C-u>split<CR>', { silent = true })
+vim.keymap.set('n', '<Leader>v', ':<C-u>vsplit<CR>', { silent = true })
+
+-- Git
+vim.keymap.set('n', '<Leader>gw', ':Git add .<CR>', { desc = "[G]it [W]rite" })
+vim.keymap.set('n', '<Leader>gc', ':Git commit<CR>', { desc = "[G]it [C]ommit" })
+vim.keymap.set('n', '<Leader>gsh', ':Git push<CR>', { desc = "[G]it Pu[sh]" })
+vim.keymap.set('n', '<Leader>gll', ':Git pull<CR>', { desc = "[G]it Pu[ll]" })
+vim.keymap.set('n', '<Leader>gs', ':Git status<CR>', { desc = "[G]it [S]tatus" })
+vim.keymap.set('n', '<Leader>gb', ':Gitsigns blame_line<CR>', { desc = "[G]it [B]lame" })
+vim.keymap.set('n', '<Leader>gr', ':Git remove<CR>', { desc = "[G]it [R]emove" })
+vim.keymap.set('n', '<Leader>o', ':.GBrowse<CR>', { desc = "[G]it [B]rowse on GitHub" })
+
+-- Tabs
+vim.keymap.set('n', '<Tab>', 'gt')
+vim.keymap.set('n', '<S-Tab>', 'gT')
+vim.keymap.set('n', '<S-t>', ':tabnew<CR>', { silent = true })
+
+-- Copy/Paste/Cut
+-- vim.keymap.set('n', 'YY', '"+y<CR>')
+-- vim.keymap.set('n', '<leader>p', '"+gP<CR>')
+-- vim.keymap.set('n', 'XX', '"+x<CR>')
+
+-- Switching windows
+vim.keymap.set('n', '<C-j>', '<C-w>j')
+vim.keymap.set('n', '<C-k>', '<C-w>k')
+vim.keymap.set('n', '<C-l>', '<C-w>l')
+vim.keymap.set('n', '<C-h>', '<C-w>h')
+
+-- Vmap for maintain Visual Mode after shifting > and <
+vim.keymap.set('v', '<', '<gv')
+vim.keymap.set('v', '>', '>gv')
+
+
+
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
@@ -250,7 +302,7 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'julia', 'rust', 'typescript', 'help', 'vim', 'markdown'},
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'julia', 'rust', 'typescript', 'help', 'vim', 'markdown' },
 
   highlight = { enable = true },
   indent = { enable = true, disable = { 'python' } },
@@ -374,7 +426,7 @@ local servers = {
   -- tsserver = {},
   hls = {
     haskell = {
-        formattingProvider = 'stylish-haskell',
+      formattingProvider = 'stylish-haskell',
     },
     filetypes = { 'haskell', 'lhaskell', 'cabal' },
   },
@@ -416,6 +468,58 @@ mason_lspconfig.setup_handlers {
 
 -- Turn on lsp status information
 require('fidget').setup()
+
+-- null_ls setup
+local null_ls_ok, null_ls = pcall(require, "null-ls")
+if not null_ls_ok then
+  return
+end
+
+local with_diagnostics_code = function(builtin)
+  return builtin.with {
+    diagnostics_format = "#{m} [#{c}]",
+  }
+end
+
+local with_root_file = function(builtin, file)
+  return builtin.with {
+    condition = function(utils)
+      return utils.root_has_file(file)
+    end,
+  }
+end
+
+local sources = {
+  -- python
+  null_ls.builtins.formatting.yapf,
+  null_ls.builtins.formatting.isort,
+
+  -- shell
+  null_ls.builtins.formatting.shfmt,
+  with_diagnostics_code(null_ls.builtins.diagnostics.shellcheck),
+
+
+  -- lua
+  with_root_file(null_ls.builtins.formatting.stylua, "stylua.toml"),
+  with_root_file(null_ls.builtins.diagnostics.selene, "selene.toml"),
+  null_ls.builtins.diagnostics.tsc,
+
+  -- lot of things
+  null_ls.builtins.formatting.prettierd,
+  null_ls.builtins.formatting.fixjson,
+  null_ls.builtins.diagnostics.write_good,
+
+  -- hover
+  null_ls.builtins.hover.dictionary,
+}
+
+null_ls.setup({ sources = sources })
+
+require("mason-null-ls").setup({
+  ensure_installed = nil,
+  automatic_installation = true,
+  automatic_setup = false,
+})
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
@@ -460,6 +564,9 @@ cmp.setup {
   },
 }
 
+-- Setup null-ls
+-- https://alpha2phi.medium.com/neovim-for-beginners-lsp-using-null-ls-nvim-bd954bf86b40
+
 -- Zettelkasten Seutp
 local home = vim.fn.expand("~/zettelkasten")
 -- NOTE for Windows users:
@@ -469,159 +576,159 @@ local home = vim.fn.expand("~/zettelkasten")
 -- - NEVER use "C:\Users\myname" style paths
 -- - Using `vim.fn.expand("~/zettelkasten")` should work now but mileage will vary with anything outside of finding and opening files
 require('telekasten').setup({
-    home         = home,
+  home = home,
 
-    -- if true, telekasten will be enabled when opening a note within the configured home
-    take_over_my_home = true,
+  -- if true, telekasten will be enabled when opening a note within the configured home
+  take_over_my_home = true,
 
-    -- auto-set telekasten filetype: if false, the telekasten filetype will not be used
-    --                               and thus the telekasten syntax will not be loaded either
-    auto_set_filetype = true,
+  -- auto-set telekasten filetype: if false, the telekasten filetype will not be used
+  --                               and thus the telekasten syntax will not be loaded either
+  auto_set_filetype = true,
 
 
-    -- auto-set telekasten syntax: if false, the telekasten syntax will not be used
-    -- this syntax setting is independent from auto-set filetype
-    auto_set_syntax = true,
+  -- auto-set telekasten syntax: if false, the telekasten syntax will not be used
+  -- this syntax setting is independent from auto-set filetype
+  auto_set_syntax = true,
 
-    -- dir names for special notes (absolute path or subdir name)
-    dailies      = home .. '/' .. 'daily',
-    weeklies     = home .. '/' .. 'weekly',
-    templates    = home .. '/' .. 'templates',
+  -- dir names for special notes (absolute path or subdir name)
+  dailies   = home .. '/' .. 'daily',
+  weeklies  = home .. '/' .. 'weekly',
+  templates = home .. '/' .. 'templates',
 
-    -- image (sub)dir for pasting
-    -- dir name (absolute path or subdir name)
-    -- or nil if pasted images shouldn't go into a special subdir
-    image_subdir = "img",
+  -- image (sub)dir for pasting
+  -- dir name (absolute path or subdir name)
+  -- or nil if pasted images shouldn't go into a special subdir
+  image_subdir = "img",
 
-    -- markdown file extension
-    extension    = ".md",
+  -- markdown file extension
+  extension = ".md",
 
-    -- Generate note filenames. One of:
-    -- "title" (default) - Use title if supplied, uuid otherwise
-    -- "uuid" - Use uuid
-    -- "uuid-title" - Prefix title by uuid
-    -- "title-uuid" - Suffix title with uuid
-    new_note_filename = "title",
+  -- Generate note filenames. One of:
+  -- "title" (default) - Use title if supplied, uuid otherwise
+  -- "uuid" - Use uuid
+  -- "uuid-title" - Prefix title by uuid
+  -- "title-uuid" - Suffix title with uuid
+  new_note_filename = "title",
 
-    --[[ file UUID type
+  --[[ file UUID type
         - "rand"
         - string input for os.date()
         - or custom lua function that returns a string
     --]]
-    uuid_type = "%Y%m%d%H%M",
-    -- UUID separator
-    uuid_sep = "-",
+  uuid_type = "%Y%m%d%H%M",
+  -- UUID separator
+  uuid_sep = "-",
 
-    -- if not nil, this string replaces spaces in the title when generating filenames
-    filename_space_subst = nil,
+  -- if not nil, this string replaces spaces in the title when generating filenames
+  filename_space_subst = nil,
 
-    -- following a link to a non-existing note will create it
-    follow_creates_nonexisting = true,
-    dailies_create_nonexisting = true,
-    weeklies_create_nonexisting = true,
+  -- following a link to a non-existing note will create it
+  follow_creates_nonexisting = true,
+  dailies_create_nonexisting = true,
+  weeklies_create_nonexisting = true,
 
-    -- skip telescope prompt for goto_today and goto_thisweek
-    journal_auto_open = false,
+  -- skip telescope prompt for goto_today and goto_thisweek
+  journal_auto_open = false,
 
-    -- template for new notes (new_note, follow_link)
-    -- set to `nil` or do not specify if you do not want a template
-    template_new_note = home .. '/' .. 'templates/new_note.md',
+  -- template for new notes (new_note, follow_link)
+  -- set to `nil` or do not specify if you do not want a template
+  template_new_note = home .. '/' .. 'templates/new_note.md',
 
-    -- template for newly created daily notes (goto_today)
-    -- set to `nil` or do not specify if you do not want a template
-    template_new_daily = home .. '/' .. 'templates/daily.md',
+  -- template for newly created daily notes (goto_today)
+  -- set to `nil` or do not specify if you do not want a template
+  template_new_daily = home .. '/' .. 'templates/daily.md',
 
-    -- template for newly created weekly notes (goto_thisweek)
-    -- set to `nil` or do not specify if you do not want a template
-    template_new_weekly= home .. '/' .. 'templates/weekly.md',
+  -- template for newly created weekly notes (goto_thisweek)
+  -- set to `nil` or do not specify if you do not want a template
+  template_new_weekly = home .. '/' .. 'templates/weekly.md',
 
-    -- image link style
-    -- wiki:     ![[image name]]
-    -- markdown: ![](image_subdir/xxxxx.png)
-    image_link_style = "markdown",
+  -- image link style
+  -- wiki:     ![[image name]]
+  -- markdown: ![](image_subdir/xxxxx.png)
+  image_link_style = "markdown",
 
-    -- default sort option: 'filename', 'modified'
-    sort = "filename",
+  -- default sort option: 'filename', 'modified'
+  sort = "filename",
 
-    -- integrate with calendar-vim
-    plug_into_calendar = true,
-    calendar_opts = {
-        -- calendar week display mode: 1 .. 'WK01', 2 .. 'WK 1', 3 .. 'KW01', 4 .. 'KW 1', 5 .. '1'
-        weeknm = 4,
-        -- use monday as first day of week: 1 .. true, 0 .. false
-        calendar_monday = 1,
-        -- calendar mark: where to put mark for marked days: 'left', 'right', 'left-fit'
-        calendar_mark = 'left-fit',
+  -- integrate with calendar-vim
+  plug_into_calendar = true,
+  calendar_opts = {
+    -- calendar week display mode: 1 .. 'WK01', 2 .. 'WK 1', 3 .. 'KW01', 4 .. 'KW 1', 5 .. '1'
+    weeknm = 4,
+    -- use monday as first day of week: 1 .. true, 0 .. false
+    calendar_monday = 1,
+    -- calendar mark: where to put mark for marked days: 'left', 'right', 'left-fit'
+    calendar_mark = 'left-fit',
+  },
+
+  -- telescope actions behavior
+  close_after_yanking = false,
+  insert_after_inserting = true,
+
+  -- tag notation: '#tag', ':tag:', 'yaml-bare'
+  tag_notation = "#tag",
+
+  -- command palette theme: dropdown (window) or ivy (bottom panel)
+  command_palette_theme = "ivy",
+
+  -- tag list theme:
+  -- get_cursor: small tag list at cursor; ivy and dropdown like above
+  show_tags_theme = "ivy",
+
+  -- when linking to a note in subdir/, create a [[subdir/title]] link
+  -- instead of a [[title only]] link
+  subdirs_in_links = true,
+
+  -- template_handling
+  -- What to do when creating a new note via `new_note()` or `follow_link()`
+  -- to a non-existing note
+  -- - prefer_new_note: use `new_note` template
+  -- - smart: if day or week is detected in title, use daily / weekly templates (default)
+  -- - always_ask: always ask before creating a note
+  template_handling = "smart",
+
+  -- path handling:
+  --   this applies to:
+  --     - new_note()
+  --     - new_templated_note()
+  --     - follow_link() to non-existing note
+  --
+  --   it does NOT apply to:
+  --     - goto_today()
+  --     - goto_thisweek()
+  --
+  --   Valid options:
+  --     - smart: put daily-looking notes in daily, weekly-looking ones in weekly,
+  --              all other ones in home, except for notes/with/subdirs/in/title.
+  --              (default)
+  --
+  --     - prefer_home: put all notes in home except for goto_today(), goto_thisweek()
+  --                    except for notes with subdirs/in/title.
+  --
+  --     - same_as_current: put all new notes in the dir of the current note if
+  --                        present or else in home
+  --                        except for notes/with/subdirs/in/title.
+  new_note_location = "smart",
+
+  -- should all links be updated when a file is renamed
+  rename_update_links = true,
+
+  vaults = {
+    vault2 = {
+      -- alternate configuration for vault2 here. Missing values are defaulted to
+      -- default values from telekasten.
+      -- e.g.
+      -- home = "/home/user/vaults/personal",
     },
+  },
 
-    -- telescope actions behavior
-    close_after_yanking = false,
-    insert_after_inserting = true,
+  -- how to preview media files
+  -- "telescope-media-files" if you have telescope-media-files.nvim installed
+  -- "catimg-previewer" if you have catimg installed
+  media_previewer = "telescope-media-files",
 
-    -- tag notation: '#tag', ':tag:', 'yaml-bare'
-    tag_notation = "#tag",
-
-    -- command palette theme: dropdown (window) or ivy (bottom panel)
-    command_palette_theme = "ivy",
-
-    -- tag list theme:
-    -- get_cursor: small tag list at cursor; ivy and dropdown like above
-    show_tags_theme = "ivy",
-
-    -- when linking to a note in subdir/, create a [[subdir/title]] link
-    -- instead of a [[title only]] link
-    subdirs_in_links = true,
-
-    -- template_handling
-    -- What to do when creating a new note via `new_note()` or `follow_link()`
-    -- to a non-existing note
-    -- - prefer_new_note: use `new_note` template
-    -- - smart: if day or week is detected in title, use daily / weekly templates (default)
-    -- - always_ask: always ask before creating a note
-    template_handling = "smart",
-
-    -- path handling:
-    --   this applies to:
-    --     - new_note()
-    --     - new_templated_note()
-    --     - follow_link() to non-existing note
-    --
-    --   it does NOT apply to:
-    --     - goto_today()
-    --     - goto_thisweek()
-    --
-    --   Valid options:
-    --     - smart: put daily-looking notes in daily, weekly-looking ones in weekly,
-    --              all other ones in home, except for notes/with/subdirs/in/title.
-    --              (default)
-    --
-    --     - prefer_home: put all notes in home except for goto_today(), goto_thisweek()
-    --                    except for notes with subdirs/in/title.
-    --
-    --     - same_as_current: put all new notes in the dir of the current note if
-    --                        present or else in home
-    --                        except for notes/with/subdirs/in/title.
-    new_note_location = "smart",
-
-    -- should all links be updated when a file is renamed
-    rename_update_links = true,
-
-    vaults = {
-        vault2 = {
-            -- alternate configuration for vault2 here. Missing values are defaulted to
-            -- default values from telekasten.
-            -- e.g.
-            -- home = "/home/user/vaults/personal",
-        },
-    },
-
-    -- how to preview media files
-    -- "telescope-media-files" if you have telescope-media-files.nvim installed
-    -- "catimg-previewer" if you have catimg installed
-    media_previewer = "telescope-media-files",
-
-    -- A customizable fallback handler for urls.
-    follow_url_fallback = nil,
+  -- A customizable fallback handler for urls.
+  follow_url_fallback = nil,
 })
 
 require('quarto').setup {
@@ -637,8 +744,8 @@ require('quarto').setup {
     }
   },
 
-  on_attach = function ()
-     vim.keymap.set('n', '<leader>qp', require('quarto').quartoPreview, {silent = true, noremap = true})
+  on_attach = function()
+    vim.keymap.set('n', '<leader>qp', require('quarto').quartoPreview, { silent = true, noremap = true })
   end
 }
 

@@ -1,4 +1,4 @@
-#                   __ _       
+#                  __ _       
 #                  / _(_)      
 #   ___ ___  _ __ | |_ _  __ _ 
 #  / __/ _ \| '_ \|  _| |/ _` |
@@ -40,7 +40,8 @@ popup_during_fullscreen smart
 set $TERMINAL alacritty
 set $SCRATCHPAD "$HOME/.config/i3/launch_scratch.sh"
 set $LAUNCHER rofi -show run
-set $PASS_LAUNCHER "$HOME/bin/rofi-pass"
+#set $PASS_LAUNCHER "$HOME/bin/rofi-pass"
+set $PASS_LAUNCHER "$HOME/.local/bin/rofi-rbw"
 
 set $EXITCMD "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
@@ -370,5 +371,5 @@ set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) re
             bindsym Escape mode "default"
     }
 
-bindsym $mod+Pause mode "$mode_system"
+bindsym $mod+Delete mode "$mode_system"
 ### End Handy Menu Mode ### }}}

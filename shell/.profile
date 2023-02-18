@@ -29,3 +29,4 @@ case ":$PATH:" in *:/home/dkubek/.julia/juliaup/bin:*);; *)
 esac
 
 # <<< juliaup initialize <<<
+. "$HOME/.cargo/env"
