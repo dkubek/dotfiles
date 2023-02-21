@@ -77,10 +77,17 @@ require('packer').startup(function(use)
   use 'renerocksai/calendar-vim'
 
   -- Quarto
-  use {
-    'quarto-dev/quarto-nvim',
-    requires = { 'jmbuhr/otter.nvim', 'neovim/nvim-lspconfig' },
+  use { 'quarto-dev/quarto-nvim',
+    requires = {
+      'jmbuhr/otter.nvim',
+      'neovim/nvim-lspconfig'
+    },
   }
+
+  -- send code from python/r/qmd docuemts to the terminal
+  -- thanks to tmux can be used for any repl
+  -- like ipython, R, bash
+  use { 'jpalardy/vim-slime' }
 
   -- Markdown
   use {
@@ -208,12 +215,6 @@ vim.keymap.set('n', '<S-t>', ':tabnew<CR>', { silent = true })
 -- vim.keymap.set('n', 'YY', '"+y<CR>')
 -- vim.keymap.set('n', '<leader>p', '"+gP<CR>')
 -- vim.keymap.set('n', 'XX', '"+x<CR>')
-
--- Switching windows
-vim.keymap.set('n', '<C-j>', '<C-w>j')
-vim.keymap.set('n', '<C-k>', '<C-w>k')
-vim.keymap.set('n', '<C-l>', '<C-w>l')
-vim.keymap.set('n', '<C-h>', '<C-w>h')
 
 -- Vmap for maintain Visual Mode after shifting > and <
 vim.keymap.set('v', '<', '<gv')
@@ -431,7 +432,7 @@ local servers = {
     filetypes = { 'haskell', 'lhaskell', 'cabal' },
   },
 
-  sumneko_lua = {
+  lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
@@ -495,7 +496,7 @@ local sources = {
   null_ls.builtins.formatting.isort,
 
   -- shell
-  null_ls.builtins.formatting.shfmt,
+  null_ls.builtins.formatting.shfmt.with { extra_args = { "-i 2", "-ci" } },
   with_diagnostics_code(null_ls.builtins.diagnostics.shellcheck),
 
 
@@ -513,7 +514,14 @@ local sources = {
   null_ls.builtins.hover.dictionary,
 }
 
-null_ls.setup({ sources = sources })
+
+null_ls.setup(
+  { sources = sources,
+    should_attach = function(bufnr)
+      return not vim.api.nvim_buf_get_name(bufnr):match("qmd")
+    end,
+  }
+)
 
 require("mason-null-ls").setup({
   ensure_installed = nil,
@@ -731,7 +739,9 @@ require('telekasten').setup({
   follow_url_fallback = nil,
 })
 
-require('quarto').setup {
+
+-- Quarto setup
+require 'quarto'.setup {
   lspFeatures = {
     enabled = true,
     languages = { 'r', 'python', 'julia' },
@@ -742,11 +752,7 @@ require('quarto').setup {
     completion = {
       enabled = true
     }
-  },
-
-  on_attach = function()
-    vim.keymap.set('n', '<leader>qp', require('quarto').quartoPreview, { silent = true, noremap = true })
-  end
+  }
 }
 
 -- The line beneath this is called `modeline`. See `:help modeline`
