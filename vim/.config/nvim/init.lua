@@ -1,152 +1,155 @@
--- Install packer
-local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
-local is_bootstrap = false
-if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-  is_bootstrap = true
-  vim.fn.system { 'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path }
-  vim.cmd [[packadd packer.nvim]]
+-- Set <space> as the leader key
+-- See `:help mapleader`
+--  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
+
+-- Install package manager
+--    https://github.com/folke/lazy.nvim
+--    `:help lazy.nvim.txt` for more info
+local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system {
+    'git',
+    'clone',
+    '--filter=blob:none',
+    'https://github.com/folke/lazy.nvim.git',
+    '--branch=stable', -- latest stable release
+    lazypath,
+  }
 end
+vim.opt.rtp:prepend(lazypath)
 
-require('packer').startup(function(use)
-  -- Package manager
-  use 'wbthomason/packer.nvim'
+-- NOTE: Here is where you install your plugins.
+--  You can configure plugins using the `config` key.
+--
+--  You can also configure plugins after the setup call,
+--    as they will be available in your neovim runtime.
+require('lazy').setup({
+  -- NOTE: First, some plugins that don't require any configuration
 
-  use { -- LSP Configuration & Plugins
+  -- Git related plugins
+  'tpope/vim-fugitive',
+  'tpope/vim-rhubarb',
+
+  -- Detect tabstop and shiftwidth automatically
+  'tpope/vim-sleuth',
+
+  -- NOTE: This is where your plugins related to LSP can be installed.
+  --  The configuration is done below. Search for lspconfig to find it below.
+  { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
-    requires = {
+    dependencies = {
       -- Automatically install LSPs to stdpath for neovim
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
-      'j-hui/fidget.nvim',
+      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
+      { 'j-hui/fidget.nvim', opts = {} },
 
-      -- Additional lua configuration, makes nvim stuff amazing
+      -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
-
-      'jose-elias-alvarez/null-ls.nvim',
-      "jay-babu/mason-null-ls.nvim"
     },
-  }
+  },
 
-  use { -- Autocompletion
+  { -- Autocompletion
     'hrsh7th/nvim-cmp',
-    requires = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
-  }
+    dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
+  },
 
-  use { -- Highlight, edit, and navigate code
-    'nvim-treesitter/nvim-treesitter',
-    run = function()
-      pcall(require('nvim-treesitter.install').update { with_sync = true })
-    end,
-  }
-
-  use { -- Additional text objects via treesitter
-    'nvim-treesitter/nvim-treesitter-textobjects',
-    after = 'nvim-treesitter',
-  }
-
-  -- Git related plugins
-  use 'tpope/vim-fugitive'
-  use 'tpope/vim-rhubarb'
-  use 'lewis6991/gitsigns.nvim'
-
-  --use 'navarasu/onedark.nvim' -- Theme inspired by Atom
-  use {
-    'nvim-lualine/lualine.nvim', -- Fancier statusline
-    requires = { 'RRethy/nvim-base16' },
-  }
-  use 'lukas-reineke/indent-blankline.nvim' -- Add indentation guides even on blank lines
-  use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
-  use 'tpope/vim-sleuth' -- Detect tabstop and shiftwidth automatically
-
-  -- LaTex
-  use {
-    'lervag/vimtex',
-    config = function()
-      vim.g.tex_flavor = 'latex'
-      vim.g.vimtex_view_general_viewer = 'zathura'
-      vim.g.vimtex_compiler_latexmk = {
-        build_dir = 'out',
-      }
-    end,
-  }
-
-  -- Zettelkastern
-  use 'renerocksai/telekasten.nvim'
-  use 'renerocksai/calendar-vim'
-
-  -- Quarto
-  use { 'quarto-dev/quarto-nvim',
-    requires = {
-      'jmbuhr/otter.nvim',
-      'neovim/nvim-lspconfig'
+  -- Useful plugin to show you pending keybinds.
+  { 'folke/which-key.nvim', opts = {} },
+  { -- Adds git releated signs to the gutter, as well as utilities for managing changes
+    'lewis6991/gitsigns.nvim',
+    opts = {
+      -- See `:help gitsigns.txt`
+      signs = {
+        add = { text = '+' },
+        change = { text = '~' },
+        delete = { text = '_' },
+        topdelete = { text = '‾' },
+        changedelete = { text = '~' },
+      },
     },
-  }
+  },
 
-  -- send code from python/r/qmd docuemts to the terminal
-  -- thanks to tmux can be used for any repl
-  -- like ipython, R, bash
-  use { 'jpalardy/vim-slime' }
+  { -- Theme inspired by Atom
+    'navarasu/onedark.nvim',
+    priority = 1000,
+    config = function()
+      vim.cmd.colorscheme 'onedark'
+    end,
+  },
 
-  -- Markdown
-  use {
-    "iamcco/markdown-preview.nvim",
-    run = function() vim.fn["mkdp#util#install"]() end,
-  }
+  { -- Set lualine as statusline
+    'nvim-lualine/lualine.nvim',
+    -- See `:help lualine.txt`
+    opts = {
+      options = {
+        icons_enabled = false,
+        theme = 'flavours',
+        component_separators = '|',
+        section_separators = '',
+      },
+    },
+  },
 
+  { -- Add indentation guides even on blank lines
+    'lukas-reineke/indent-blankline.nvim',
+    -- Enable `lukas-reineke/indent-blankline.nvim`
+    -- See `:help indent_blankline.txt`
+    opts = {
+      char = '┊',
+      show_trailing_blankline_indent = false,
+    },
+  },
 
-  -- Haskell
-  use 'neovimhaskell/haskell-vim'
-
+  -- "gc" to comment visual regions/lines
+  { 'numToStr/Comment.nvim', opts = {} },
 
   -- Fuzzy Finder (files, lsp, etc)
-  use {
-    'nvim-telescope/telescope.nvim',
-    branch = '0.1.x',
-    requires = {
-      'nvim-lua/plenary.nvim',
-    }
-  }
-  use {
-    "nvim-telescope/telescope-file-browser.nvim",
-    requires = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
-  }
+  { 'nvim-telescope/telescope.nvim', version = '*', dependencies = { 'nvim-lua/plenary.nvim' } },
 
-  -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
-  use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
+  -- Fuzzy Finder Algorithm which requires local dependencies to be built.
+  -- Only load if `make` is available. Make sure you have the system
+  -- requirements installed.
+  {
+    'nvim-telescope/telescope-fzf-native.nvim',
+    -- NOTE: If you are having trouble with this installation,
+    --       refer to the README for telescope-fzf-native for more instructions.
+    build = 'make',
+    cond = function()
+      return vim.fn.executable 'make' == 1
+    end,
+  },
 
-  -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
-  local has_plugins, plugins = pcall(require, 'custom.plugins')
-  if has_plugins then
-    plugins(use)
-  end
+  { -- Highlight, edit, and navigate code
+    'nvim-treesitter/nvim-treesitter',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter-textobjects',
+    },
+    config = function()
+      pcall(require('nvim-treesitter.install').update { with_sync = true })
+    end,
+  },
 
-  if is_bootstrap then
-    require('packer').sync()
-  end
-end)
+  -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
+  --       These are some example plugins that I've included in the kickstart repository.
+  --       Uncomment any of the lines below to enable them.
+  -- require 'kickstart.plugins.autoformat',
+  -- require 'kickstart.plugins.debug',
 
--- When we are bootstrapping a configuration, it doesn't
--- make sense to execute the rest of the init.lua.
---
--- You'll need to restart nvim, and then it will work.
-if is_bootstrap then
-  print '=================================='
-  print '    Plugins are being installed'
-  print '    Wait until Packer completes,'
-  print '       then restart nvim'
-  print '=================================='
-  return
-end
-
--- Automatically source and re-compile packer whenever you save this init.lua
-local packer_group = vim.api.nvim_create_augroup('Packer', { clear = true })
-vim.api.nvim_create_autocmd('BufWritePost', {
-  command = 'source <afile> | silent! LspStop | silent! LspStart | PackerCompile',
-  group = packer_group,
-  pattern = vim.fn.expand '$MYVIMRC',
-})
+  -- NOTE: The import below automatically adds your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
+  --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
+  --    up-to-date with whatever is in the kickstart repo.
+  --
+  --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
+  --
+  --    An additional note is that if you only copied in the `init.lua`, you can just comment this line
+  --    to get rid of the warning telling you that there are not plugins in `lua/custom/plugins/`.
+  { import = 'custom.plugins' },
+}, {})
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -160,6 +163,11 @@ vim.wo.number = true
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
+-- Sync clipboard between OS and Neovim.
+--  Remove this option if you want your OS clipboard to remain independent.
+--  See `:help 'clipboard'`
+vim.o.clipboard = 'unnamedplus'
+
 -- Enable break indent
 vim.o.breakindent = true
 
@@ -170,23 +178,21 @@ vim.o.undofile = true
 vim.o.ignorecase = true
 vim.o.smartcase = true
 
--- Decrease update time
-vim.o.updatetime = 250
+-- Keep signcolumn on by default
 vim.wo.signcolumn = 'yes'
 
--- Set colorscheme
-vim.o.termguicolors = true
-vim.cmd [[colorscheme flavours]]
+-- Decrease update time
+vim.o.updatetime = 250
+vim.o.timeout = true
+vim.o.timeoutlen = 300
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 
+-- NOTE: You should make sure your terminal supports this
+vim.o.termguicolors = true
+
 -- [[ Basic Keymaps ]]
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
@@ -195,39 +201,6 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-
--- Search mappings: These will make it so that going to the next one in a
--- search will center on the line it's found in.
-vim.keymap.set('n', 'n', 'nzzzv', { silent = true })
-vim.keymap.set('n', 'N', 'Nzzzv', { silent = true })
-
--- Split
-vim.keymap.set('n', '<Leader>h', ':<C-u>split<CR>', { silent = true })
-vim.keymap.set('n', '<Leader>v', ':<C-u>vsplit<CR>', { silent = true })
-
--- Git
-vim.keymap.set('n', '<Leader>gw', ':Git add .<CR>', { desc = "[G]it [W]rite" })
-vim.keymap.set('n', '<Leader>gc', ':Git commit<CR>', { desc = "[G]it [C]ommit" })
-vim.keymap.set('n', '<Leader>gsh', ':Git push<CR>', { desc = "[G]it Pu[sh]" })
-vim.keymap.set('n', '<Leader>gll', ':Git pull<CR>', { desc = "[G]it Pu[ll]" })
-vim.keymap.set('n', '<Leader>gs', ':Git status<CR>', { desc = "[G]it [S]tatus" })
-vim.keymap.set('n', '<Leader>gb', ':Gitsigns blame_line<CR>', { desc = "[G]it [B]lame" })
-vim.keymap.set('n', '<Leader>gr', ':Git remove<CR>', { desc = "[G]it [R]emove" })
-vim.keymap.set('n', '<Leader>o', ':.GBrowse<CR>', { desc = "[G]it [B]rowse on GitHub" })
-
--- Tabs
-vim.keymap.set('n', '<Tab>', 'gt')
-vim.keymap.set('n', '<S-Tab>', 'gT')
-vim.keymap.set('n', '<S-t>', ':tabnew<CR>', { silent = true })
-
--- Copy/Paste/Cut
--- vim.keymap.set('n', 'YY', '"+y<CR>')
--- vim.keymap.set('n', '<leader>p', '"+gP<CR>')
--- vim.keymap.set('n', 'XX', '"+x<CR>')
-
--- Vmap for maintain Visual Mode after shifting > and <
-vim.keymap.set('v', '<', '<gv')
-vim.keymap.set('v', '>', '>gv')
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -239,39 +212,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = highlight_group,
   pattern = '*',
 })
-
--- Set lualine as statusline
--- See `:help lualine.txt`
-require('lualine').setup {
-  options = {
-    icons_enabled = false,
-    theme = 'flavours',
-    component_separators = '|',
-    section_separators = '',
-  },
-}
-
--- Enable Comment.nvim
-require('Comment').setup()
-
--- Enable `lukas-reineke/indent-blankline.nvim`
--- See `:help indent_blankline.txt`
-require('indent_blankline').setup {
-  char = '┊',
-  show_trailing_blankline_indent = false,
-}
-
--- Gitsigns
--- See `:help gitsigns.txt`
-require('gitsigns').setup {
-  signs = {
-    add = { text = '+' },
-    change = { text = '~' },
-    delete = { text = '_' },
-    topdelete = { text = '‾' },
-    changedelete = { text = '~' },
-  },
-}
 
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
@@ -289,16 +229,6 @@ require('telescope').setup {
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
 
--- file browser
-vim.keymap.set(
-  "n",
-  "<space>fb",
-  require "telescope".extensions.file_browser.file_browser,
-  { noremap = true, desc = "[F]ile [B]rowser" }
-)
-
-
-
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
@@ -308,7 +238,7 @@ vim.keymap.set('n', '<leader>/', function()
     winblend = 10,
     previewer = false,
   })
-end, { desc = '[/] Fuzzily search in current buffer]' })
+end, { desc = '[/] Fuzzily search in current buffer' })
 
 vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
@@ -320,7 +250,10 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'julia', 'rust', 'typescript', 'help', 'vim', 'markdown' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'help', 'vim' },
+
+  -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
+  auto_install = false,
 
   highlight = { enable = true },
   indent = { enable = true, disable = { 'python' } },
@@ -330,7 +263,7 @@ require('nvim-treesitter.configs').setup {
       init_selection = '<c-space>',
       node_incremental = '<c-space>',
       scope_incremental = '<c-s>',
-      node_decremental = '<c-backspace>',
+      node_decremental = '<M-space>',
     },
   },
   textobjects = {
@@ -423,8 +356,8 @@ local on_attach = function(_, bufnr)
   nmap('<leader>wl', function()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, '[W]orkspace [L]ist Folders')
-  nmap('<space>fd', function() vim.lsp.buf.format { async = true } end, '[F]ormat [D]ocument')
 
+  nmap('<space>fd', function() vim.lsp.buf.format { async = true } end, '[F]ormat [D]ocument')
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
     vim.lsp.buf.format()
@@ -442,12 +375,6 @@ local servers = {
   -- pyright = {},
   -- rust_analyzer = {},
   -- tsserver = {},
-  --hls = {
-  --  haskell = {
-  --    formattingProvider = 'stylish-haskell',
-  --  },
-  --  filetypes = { 'haskell', 'lhaskell', 'cabal' },
-  --},
 
   lua_ls = {
     Lua = {
@@ -459,7 +386,7 @@ local servers = {
 
 -- Setup neovim lua configuration
 require('neodev').setup()
---
+
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
@@ -484,71 +411,11 @@ mason_lspconfig.setup_handlers {
   end,
 }
 
--- Turn on lsp status information
-require('fidget').setup()
-
--- null_ls setup
-local null_ls_ok, null_ls = pcall(require, "null-ls")
-if not null_ls_ok then
-  return
-end
-
-local with_diagnostics_code = function(builtin)
-  return builtin.with {
-    diagnostics_format = "#{m} [#{c}]",
-  }
-end
-
-local with_root_file = function(builtin, file)
-  return builtin.with {
-    condition = function(utils)
-      return utils.root_has_file(file)
-    end,
-  }
-end
-
-local sources = {
-  -- python
-  null_ls.builtins.formatting.yapf,
-  null_ls.builtins.formatting.isort,
-
-  -- shell
-  null_ls.builtins.formatting.shfmt.with { extra_args = { "-i 2", "-ci" } },
-  with_diagnostics_code(null_ls.builtins.diagnostics.shellcheck),
-
-
-  -- lua
-  with_root_file(null_ls.builtins.formatting.stylua, "stylua.toml"),
-  with_root_file(null_ls.builtins.diagnostics.selene, "selene.toml"),
-  null_ls.builtins.diagnostics.tsc,
-
-  -- lot of things
-  null_ls.builtins.formatting.prettierd,
-  null_ls.builtins.formatting.fixjson,
-  null_ls.builtins.diagnostics.write_good,
-
-  -- hover
-  null_ls.builtins.hover.dictionary,
-}
-
-
-null_ls.setup(
-  { sources = sources,
-    should_attach = function(bufnr)
-      return not vim.api.nvim_buf_get_name(bufnr):match("qmd")
-    end,
-  }
-)
-
-require("mason-null-ls").setup({
-  ensure_installed = nil,
-  automatic_installation = true,
-  automatic_setup = false,
-})
-
 -- nvim-cmp setup
 local cmp = require 'cmp'
 local luasnip = require 'luasnip'
+
+luasnip.config.setup {}
 
 cmp.setup {
   snippet = {
@@ -557,9 +424,9 @@ cmp.setup {
     end,
   },
   mapping = cmp.mapping.preset.insert {
-    ['<C-d>'] = cmp.mapping.scroll_docs( -4),
+    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-Space>'] = cmp.mapping.complete {},
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
@@ -576,8 +443,8 @@ cmp.setup {
     ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
-      elseif luasnip.jumpable( -1) then
-        luasnip.jump( -1)
+      elseif luasnip.jumpable(-1) then
+        luasnip.jump(-1)
       else
         fallback()
       end
@@ -589,159 +456,8 @@ cmp.setup {
   },
 }
 
--- Setup null-ls
--- https://alpha2phi.medium.com/neovim-for-beginners-lsp-using-null-ls-nvim-bd954bf86b40
-
--- Zettelkasten Seutp
-local home = vim.fn.expand("~/zettelkasten")
--- NOTE for Windows users:
--- - don't use Windows
--- - try WSL2 on Windows and pretend you're on Linux
--- - if you **must** use Windows, use "/Users/myname/zettelkasten" instead of "~/zettelkasten"
--- - NEVER use "C:\Users\myname" style paths
--- - Using `vim.fn.expand("~/zettelkasten")` should work now but mileage will vary with anything outside of finding and opening files
-require('telekasten').setup({
-  home              = home,
-  -- if true, telekasten will be enabled when opening a note within the configured home
-  take_over_my_home = true,
-  -- auto-set telekasten filetype: if false, the telekasten filetype will not be used
-  --                               and thus the telekasten syntax will not be loaded either
-  auto_set_filetype = true,
-  -- auto-set telekasten syntax: if false, the telekasten syntax will not be used
-  -- this syntax setting is independent from auto-set filetype
-  auto_set_syntax   = true,
-  -- dir names for special notes (absolute path or subdir name)
-  dailies           = home .. '/' .. 'daily',
-  weeklies          = home .. '/' .. 'weekly',
-  templates         = home .. '/' .. 'templates',
-  -- image (sub)dir for pasting
-  -- dir name (absolute path or subdir name)
-  -- or nil if pasted images shouldn't go into a special subdir
-  image_subdir      = "img",
-  -- markdown file extension
-  extension         = ".md",
-  -- Generate note filenames. One of:
-  -- "title" (default) - Use title if supplied, uuid otherwise
-  -- "uuid" - Use uuid
-  -- "uuid-title" - Prefix title by uuid
-  -- "title-uuid" - Suffix title with uuid
-  new_note_filename = "title",
-  --[[ file UUID type
-        - "rand"
-        - string input for os.date()
-        - or custom lua function that returns a string
-    --]]
-  uuid_type = "%Y%m%d%H%M",
-  -- UUID separator
-  uuid_sep = "-",
-  -- if not nil, this string replaces spaces in the title when generating filenames
-  filename_space_subst = nil,
-  -- following a link to a non-existing note will create it
-  follow_creates_nonexisting = true,
-  dailies_create_nonexisting = true,
-  weeklies_create_nonexisting = true,
-  -- skip telescope prompt for goto_today and goto_thisweek
-  journal_auto_open = false,
-  -- template for new notes (new_note, follow_link)
-  -- set to `nil` or do not specify if you do not want a template
-  template_new_note = home .. '/' .. 'templates/new_note.md',
-  -- template for newly created daily notes (goto_today)
-  -- set to `nil` or do not specify if you do not want a template
-  template_new_daily = home .. '/' .. 'templates/daily.md',
-  -- template for newly created weekly notes (goto_thisweek)
-  -- set to `nil` or do not specify if you do not want a template
-  template_new_weekly = home .. '/' .. 'templates/weekly.md',
-  -- image link style
-  -- wiki:     ![[image name]]
-  -- markdown: ![](image_subdir/xxxxx.png)
-  image_link_style = "markdown",
-  -- default sort option: 'filename', 'modified'
-  sort = "filename",
-  -- integrate with calendar-vim
-  plug_into_calendar = true,
-  calendar_opts = {
-    -- calendar week display mode: 1 .. 'WK01', 2 .. 'WK 1', 3 .. 'KW01', 4 .. 'KW 1', 5 .. '1'
-    weeknm = 4,
-    -- use monday as first day of week: 1 .. true, 0 .. false
-    calendar_monday = 1,
-    -- calendar mark: where to put mark for marked days: 'left', 'right', 'left-fit'
-    calendar_mark = 'left-fit',
-  },
-  -- telescope actions behavior
-  close_after_yanking = false,
-  insert_after_inserting = true,
-  -- tag notation: '#tag', ':tag:', 'yaml-bare'
-  tag_notation = "#tag",
-  -- command palette theme: dropdown (window) or ivy (bottom panel)
-  command_palette_theme = "ivy",
-  -- tag list theme:
-  -- get_cursor: small tag list at cursor; ivy and dropdown like above
-  show_tags_theme = "ivy",
-  -- when linking to a note in subdir/, create a [[subdir/title]] link
-  -- instead of a [[title only]] link
-  subdirs_in_links = true,
-  -- template_handling
-  -- What to do when creating a new note via `new_note()` or `follow_link()`
-  -- to a non-existing note
-  -- - prefer_new_note: use `new_note` template
-  -- - smart: if day or week is detected in title, use daily / weekly templates (default)
-  -- - always_ask: always ask before creating a note
-  template_handling = "smart",
-  -- path handling:
-  --   this applies to:
-  --     - new_note()
-  --     - new_templated_note()
-  --     - follow_link() to non-existing note
-  --
-  --   it does NOT apply to:
-  --     - goto_today()
-  --     - goto_thisweek()
-  --
-  --   Valid options:
-  --     - smart: put daily-looking notes in daily, weekly-looking ones in weekly,
-  --              all other ones in home, except for notes/with/subdirs/in/title.
-  --              (default)
-  --
-  --     - prefer_home: put all notes in home except for goto_today(), goto_thisweek()
-  --                    except for notes with subdirs/in/title.
-  --
-  --     - same_as_current: put all new notes in the dir of the current note if
-  --                        present or else in home
-  --                        except for notes/with/subdirs/in/title.
-  new_note_location = "smart",
-  -- should all links be updated when a file is renamed
-  rename_update_links = true,
-  vaults = {
-    vault2 = {
-      -- alternate configuration for vault2 here. Missing values are defaulted to
-      -- default values from telekasten.
-      -- e.g.
-      -- home = "/home/user/vaults/personal",
-    },
-  },
-  -- how to preview media files
-  -- "telescope-media-files" if you have telescope-media-files.nvim installed
-  -- "catimg-previewer" if you have catimg installed
-  media_previewer = "telescope-media-files",
-  -- A customizable fallback handler for urls.
-  follow_url_fallback = nil,
-})
-
-
--- Quarto setup
-require 'quarto'.setup {
-  lspFeatures = {
-    enabled = true,
-    languages = { 'r', 'python', 'julia' },
-    diagnostics = {
-      enabled = true,
-      triggers = { "BufWrite" }
-    },
-    completion = {
-      enabled = true
-    }
-  }
-}
+require 'config.global'
+require 'config.keymap'
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
