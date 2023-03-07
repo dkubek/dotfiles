@@ -375,6 +375,17 @@ local servers = {
   -- pyright = {},
   -- rust_analyzer = {},
   -- tsserver = {},
+  pylsp = {
+    pylsp = {
+      plugins = {
+        yapf = {
+          enabled = true
+        },
+        -- pylint = { enabled = true }
+      }
+    }
+  },
+
 
   lua_ls = {
     Lua = {
