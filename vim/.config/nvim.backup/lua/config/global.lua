@@ -1,5 +1,4 @@
 vim.g.markdown_fenced_languages = { 'html', 'python', 'bash=sh', 'R=r' }
-vim.opt.termguicolors = true
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -35,14 +34,14 @@ vim.cmd [[colorscheme flavours]]
 vim.o.completeopt = 'menuone,noselect'
 
 -- use spaces as tabs
-local tabsize = 2
-vim.opt.expandtab = true
-vim.opt.shiftwidth = tabsize
-vim.opt.tabstop = tabsize
+-- local tabsize = 2
+-- vim.opt.expandtab = true
+-- vim.opt.shiftwidth = tabsize
+-- vim.opt.tabstop = tabsize
 
 -- indent
-vim.opt.smartindent = true
-vim.opt.breakindent = true
+-- vim.opt.smartindent = true
+-- vim.opt.breakindent = true
 
 -- consisten number column
 vim.opt.signcolumn = "yes:1"

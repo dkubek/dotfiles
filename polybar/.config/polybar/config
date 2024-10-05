@@ -60,7 +60,8 @@ font-2 = "Hack Nerd Font Mono:pixelsize=18;0"
 
 modules-left = i3
 modules-center = 
-modules-right = pulseaudio xkeyboard memory cpu network battery date filesystem 
+;modules-right = pulseaudio xkeyboard memory cpu network battery date filesystem 
+modules-right = pulseaudio xkeyboard memory cpu network battery filesystem 
 
 tray-position = none
 tray-padding = 2

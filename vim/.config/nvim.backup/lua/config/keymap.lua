@@ -47,7 +47,7 @@ nmap('<c-u>', '<c-u>zz')
 
 
 -- open filetree
-nmap('<F2>', '<cmd>NeoTreeFloatToggle<cr>')
+nmap('<F2>', '<cmd>Neotree toggle=true position=left position=current<cr>')
 
 -- move between splits and tabs
 nmap('<c-h>', '<c-w>h')
